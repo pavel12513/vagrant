@@ -1,0 +1,31 @@
+version: '3'
+services:
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+     - '3000:3000'
+    volumes:
+      - '/home/vagrant/monitorint/grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml'
+      - '/home/vagrant/monitorint/grafana/node_exporter.yaml:/etc/grafana/provisioning/dashboards/node_exporter.yaml'
+      - '/home/vagrant/monitorint/Prometheus/grafana-dashboards/prometheus/node-exporter-full.json:/etc/grafana/provisioning/dashboards/dashboards_data/node-exporter-full.json'
+    networks:
+      - net
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - '/home/vagrant/monitorint/Prometheus/configuration/prometheus.yml:/etc/prometheus/prometheus.yml'
+    container_name: prometheus
+    hostname: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - net
+networks:
+  net:

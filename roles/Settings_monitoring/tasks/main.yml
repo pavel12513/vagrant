@@ -1,0 +1,60 @@
+---
+    - name: Createt folder Monitorint
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /home/vagrant/monitorint/
+        - /home/vagrant/monitorint/node_exporter
+        - /home/vagrant/monitorint/Prometheus/data
+        - /home/vagrant/monitorint/Prometheus/configuration
+        - /home/vagrant/monitorint/grafana/data
+    - name: Install Node_exporter
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.9.0/node_exporter-1.9.0.linux-amd64.tar.gz
+        dest: /home/vagrant/monitorint/node_exporter
+    - name: Разорзивирование Node_exporter
+      unarchive: 
+        src: /home/vagrant/monitorint/node_exporter/node_exporter-1.9.0.linux-amd64.tar.gz
+        dest: /home/vagrant/monitorint/node_exporter/
+    - name: Copy Node_exporter in /local/bin
+      shell: cd /home/vagrant/monitorint/node_exporter/node_exporter-1.9.0.linux-amd64 && cp node_exporter /usr/local/bin
+      ignore_errors: yes
+    - name: Создание системного сервиса для Node Exporter
+      template:
+        src: roles/templates/node_exporter.service
+        dest: /etc/systemd/system/node_exporter.service
+    - name: Запуск и включение сервиса Node Exporter
+      systemd:
+        name: node_exporter
+        state: started
+        enabled: yes
+    - name: Создание директории для хранения дашбордов
+      file:
+        path: "/etc/grafana/provisioning/dashboards/dashboards_data"
+        state: directory
+        mode: '0755'
+    - name: Создание docker-compose файлы
+      template:
+        src: roles/templates/docker-compose.yml
+        dest: /home/vagrant/monitorint/docker-compose.yml
+    - name: Создание prometheus.yml
+      template:
+        src: roles/templates/prometheus.yml
+        dest: /home/vagrant/monitorint/Prometheus/configuration/prometheus.yml
+    - name: Создание datasoure file для Grafana
+      template:
+        src: roles/templates/datasource.yaml
+        dest: /home/vagrant/monitorint/grafana/datasource.yaml
+    - name: Создание datasoure Node_exporter
+      template:
+        src: roles/templates/node_exporter.yaml
+        dest: /home/vagrant/monitorint/grafana/node_exporter.yaml
+    - name: Клонирования Дашборда из git
+      shell: cd /home/vagrant/monitorint/Prometheus && sudo git clone https://github.com/rfmoz/grafana-dashboards
+      ignore_errors: yes
+    - name: Запустить docker-compose
+      shell: sudo docker-compose up -d
+      args:
+        chdir: /home/vagrant/monitorint

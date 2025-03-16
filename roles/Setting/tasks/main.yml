@@ -1,0 +1,24 @@
+--- 
+  - name: Create User
+    user: 
+      name: monitoring
+      password: "{{ '123456' | password_hash('sha512') }}"
+      shell: /bin/bash
+      state: present
+  - name: Add user in Sudo
+    user:
+      name: monitoring
+      groups: sudo
+      append: yes
+  - name: Update
+    apt:
+      update_cache: yes
+  - name: Install curl and others
+    apt:
+      name: 
+        - curl
+        - software-properties-common
+        - ca-certificates
+        - apt-transport-https
+      state: present
+      update_cache: yes

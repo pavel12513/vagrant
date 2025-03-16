@@ -1,0 +1,43 @@
+---
+- name: Добавление GPG ключа Docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+- name: Добавление репозитория Docker
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+- name: Установка Docker
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin    
+      - docker-compose
+- name: Docker and Docker_compose enable
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  loop:
+    - docker
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+- name: Verify Docker installation
+  command: docker --version
+  register: docker_version
+- debug:
+    var: docker_version.stdout_lines
+- name: Verify Docker_compose installation
+  command: docker-compose --version
+  register: docker_compose_version
+- debug:
+    var: docker_compose_version.stdout_lines
+- name: Docker start
+  systemd:
+    name: docker
+    state: started

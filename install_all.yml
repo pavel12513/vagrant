@@ -1,0 +1,23 @@
+---
+- name: Первичный настройки. Создания пользователя
+  hosts: all
+  become: true
+  tasks:
+  - include_role:
+      name: Setting
+
+- name: Установка docker и всех компонентов
+  hosts: all
+  remote_user: monitoring
+  become: true
+  tasks:
+  - include_role:
+      name: Install_Docker
+
+- name: Установка Мониторинга и настройка dashborda
+  hosts: all
+  remote_user: monitoring
+  become: true
+  tasks:
+  - include_role:
+      name: Settings_monitoring
