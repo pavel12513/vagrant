@@ -8,7 +8,6 @@
 
 - name: Установка docker и всех компонентов
   hosts: all
-  remote_user: monitoring
   become: true
   tasks:
   - include_role:
@@ -16,7 +15,6 @@
 
 - name: Установка Мониторинга и настройка dashborda
   hosts: all
-  remote_user: monitoring
   become: true
   tasks:
   - include_role:
