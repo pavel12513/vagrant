@@ -23,3 +23,6 @@ name: Создание системного сервиса для Node Exporter 
 
 
 В файле /prometheus.yml IP адрес сервера передаю через встроенные переменные ansible ansible_default_ipv4.address. При разворачивании, IP адрес будет подставлен автоматически. 
+
+
+Grafana логин/пароль admin/admin - не менял его. 
